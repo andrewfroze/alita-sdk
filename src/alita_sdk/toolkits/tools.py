@@ -1,6 +1,6 @@
 import logging
 
-from alita_tools import get_toolkits as alita_toolkits
+from alita_tools import get_toolkits as alita_toolkits, ServiceNowToolkit
 from alita_tools import get_tools as alita_tools
 
 from .application import ApplicationToolkit
@@ -92,10 +92,12 @@ def get_tools(tools_list: list, alita_client, llm) -> list:
                 llm=llm,
                 toolkit_name=tool.get('toolkit_name', ''),
                 **tool['settings']).get_tools())
+        if  tool['type'] == 'service_now':
+            tools.extend(ServiceNowToolkit.get_toolkit(**tool['settings']).get_tools())
     if len(prompts) > 0:
         tools += PromptToolkit.get_toolkit(alita_client, prompts).get_tools()
     tools += alita_tools(tools_list, alita_client, llm)
-    tools += _mcp_tools(tools_list, alita_client)
+    # tools += _mcp_tools(tools_list, alita_client)
     return tools
 
 
