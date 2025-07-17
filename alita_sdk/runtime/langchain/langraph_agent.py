@@ -27,7 +27,7 @@ from ..tools.loop import LoopNode
 from ..tools.loop_output import LoopToolNode
 from ..tools.tool import ToolNode
 from ..utils.evaluate import EvaluateTemplate
-from ..utils.utils import clean_string, TOOLKIT_SPLITTER
+from ..utils.utils import clean_string, TOOLKIT_SPLITTER, get_tool_name_for_toolkit
 from ..tools.router import RouterNode
 
 logger = logging.getLogger(__name__)
@@ -387,11 +387,11 @@ def create_graph(
             toolkit_name = node.get('toolkit_name')
             tool_name = clean_string(node.get('tool', node_id))
             if toolkit_name:
-                tool_name = f"{clean_string(toolkit_name)}{TOOLKIT_SPLITTER}{tool_name}"
+                tool_name = get_tool_name_for_toolkit(toolkit_name, tool_name)
             logger.info(f"Node: {node_id} : {node_type} - {tool_name}")
             if node_type in ['function', 'tool', 'loop', 'loop_from_tool', 'indexer', 'subgraph', 'pipeline', 'agent']:
                 for tool in tools:
-                    if tool.name == tool_name:
+                    if get_tool_name_for_toolkit(toolkit_name, tool.name) == tool_name:
                         if node_type == 'function':
                             lg_builder.add_node(node_id, FunctionTool(
                                 tool=tool, name=node['id'], return_type='dict',
